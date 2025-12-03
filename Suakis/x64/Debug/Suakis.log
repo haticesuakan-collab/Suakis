@@ -1,0 +1,3 @@
+﻿  Suakis.c
+C:\DEV\Suakis\Suakis.c(36,8): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Suakis.vcxproj -> C:\DEV\Suakis\x64\Debug\Suakis.exe
