@@ -8,7 +8,7 @@
 #define AC_GREEN "\x1b[32m"
 #define AC_WHITE "\x1b[37m"
 
-#define SIZE 10
+int SIZE = 10;
 
 enum BlockTypes
 {
@@ -24,28 +24,36 @@ enum BlockTypes
 	wall = 9			//X
 };
 
-void draw(int arr[SIZE][SIZE], int inventory[9][2]);
+void draw(int **grid, int inventory[5][2]);
 void handleInput(char input);
-void InitializeGrid(int arr[SIZE][SIZE]);
-void getRandEmptyPos(int grid[SIZE][SIZE], int randPos[2]);
+void InitializeGrid(int **grid);
+void getRandEmptyPos(int **grid, int randPos[2]);
+int **createGrid(int n);
+void freeGrid(int **arr, int n);
+void PlacePipe();
 
+int **grid = NULL;
 
-int selected[2] = { 2, 2 };
+int selectedGrid[2] = { 2, 2 };
+int selectedPipe = 2;
+int limitedPipes = 1; // 1: limit pipe placement to what you have in inventory 
+
+int inventory[5][2] = {
+	{Lpipe, 2},
+	{Jpipe, 1},
+	{pipe, 1},
+	{Ppipe, 1},
+	{verticalPipe, 1}
+};
+
 int main()
 {
 	srand(time(NULL));
 
 	printf(AC_WHITE);
-	int grid[SIZE][SIZE];
+	grid = createGrid(SIZE);
 	InitializeGrid(grid);
 
-	int inventory[9][2] = {
-		{Lpipe, 0},
-		{Jpipe, 1},
-		{pipe, 0},
-		{Ppipe, 0},
-		{verticalPipe, 2}
-	};
 
 	draw(grid, inventory);
 	while (1)
@@ -56,7 +64,7 @@ int main()
 			handleInput(c);
 
 			fflush(stdout);
-			if (c == 'q') break;    // quit
+			if (c == 'x') break;    // quit
 		}
 		else
 		{
@@ -65,8 +73,6 @@ int main()
 		system("cls");
 		draw(grid, inventory);
 	}
-
-
 	return 0;
 }
 
@@ -74,54 +80,72 @@ void handleInput(char input) {
 	switch (input)
 	{
 	case 'w':
-		selected[0]--;
+		selectedGrid[0]--;
 		break;
 	case 'a':
-		selected[1]--;
+		selectedGrid[1]--;
 		break;
 	case 's':
-		selected[0]++;
+		selectedGrid[0]++;
 		break;
 	case 'd':
-		selected[1]++;
+		selectedGrid[1]++;
 		break;
+	case ' ':
+		PlacePipe();
+		break;
+
+	//inventory selection
+	case 'q':
+		selectedPipe--;
+		if (selectedPipe < 0) selectedPipe=0;
+		break;
+	case 'e':
+		selectedPipe++;
+		if (selectedPipe > 4) selectedPipe=4;
+		break;
+	
 	}
-	if (selected[0] < 0) selected[0] = 0;
-	if (selected[0] >= SIZE) selected[0] = SIZE - 1;
-	if (selected[1] < 0) selected[1] = 0;
-	if (selected[1] >= SIZE) selected[1] = SIZE - 1;
+	if (selectedGrid[0] < 0) selectedGrid[0] = 0;
+	if (selectedGrid[0] >= SIZE) selectedGrid[0] = SIZE - 1;
+	if (selectedGrid[1] < 0) selectedGrid[1] = 0;
+	if (selectedGrid[1] >= SIZE) selectedGrid[1] = SIZE - 1;
 }
 
-void draw(int arr[SIZE][SIZE], int inventory[9][2]) {
+void draw(int **grid, int inventory[5][2]) {
 
-	system("cls");
-
-	//�nventory
+	//inventory
 	printf("Inventory: \n");
-	for (int i = 0; i < 9; i++)
+	for (int i = 0; i < 5; i++)
 	{
+		if(selectedPipe == i)printf(AC_RED);
+
 		int a = inventory[i][0];
 		char* type = "";
 		switch (a)
 		{
 		case Lpipe:
-			type = "L: ";
+			type = "L";
 			break;
 		case Jpipe:
-			type = "J: ";
+			type = "J";
 			break;
 		case pipe:
-			type = "-: ";
+			type = "-";
 			break;
 		case Ppipe:
-			type = "+: ";
+			type = "+";
 			break;
 		case verticalPipe:
-			type = "|: ";
+			type = "|";
 			break;
 		}
-		if (inventory[i][1] != 0)
-			printf("%s %d pieces\n", type, inventory[i][1]);
+		if (limitedPipes == 1) {
+			printf("%s :  %d pieces\t", type, inventory[i][1]);
+		}else{
+			printf("%s\t", type);
+		}
+		printf(AC_WHITE);
 	}
 	printf("\n");
 
@@ -132,11 +156,11 @@ void draw(int arr[SIZE][SIZE], int inventory[9][2]) {
 	{
 		for (j = 0; j < SIZE; j++)
 		{
-			if (i == selected[0] && j == selected[1])
+			if (i == selectedGrid[0] && j == selectedGrid[1])
 			{
 				printf(AC_GREEN);
 			}
-			switch (arr[i][j])
+			switch (grid[i][j])
 			{
 			case source:
 				printf("[K]");
@@ -165,34 +189,69 @@ void draw(int arr[SIZE][SIZE], int inventory[9][2]) {
 			case Ppipe:
 				printf("[+]");
 				break;
+			default:
+				printf("Err!");
+				break;
 			}
 			printf(AC_WHITE);
 		}
 		printf("\n");
 	}
+
+	//display controls
+	printf("\n inventory: q/e \t square selection: WASD \t place: space \n");
 }
 
-void InitializeGrid(int arr[SIZE][SIZE])
+int **createGrid(int n) {
+    int **arr = malloc(n * sizeof(int*));
+    for (int i = 0; i < n; i++) {
+        arr[i] = malloc(n * sizeof(int));
+    }
+    return arr;
+}
+
+void freeGrid(int **arr, int n) {
+    for (int i = 0; i < n; i++) {
+        free(arr[i]);
+    }
+    free(arr);
+}
+
+
+void InitializeGrid(int **grid)
 {
 	for (int i = 0; i < SIZE; i++)
 		for (int j = 0; j < SIZE; j++)
-			arr[i][j] = 0;
+			grid[i][j] = 0;
 
 	int randPos[2] = {0,0};
-	getRandEmptyPos(arr, randPos);
+	getRandEmptyPos(grid, randPos);
 
-	arr[randPos[0]][randPos[1]] = source;
+	grid[randPos[0]][randPos[1]] = source;
 
-	getRandEmptyPos(arr, randPos);
-	arr[randPos[0]][randPos[1]] = target;
+	getRandEmptyPos(grid, randPos);
+	grid[randPos[0]][randPos[1]] = target;
 	
-	getRandEmptyPos(arr, randPos);
-	arr[randPos[0]][randPos[1]] = barrier;
-
-
+	getRandEmptyPos(grid, randPos);
+	grid[randPos[0]][randPos[1]] = barrier;
 }
 
-void getRandEmptyPos(int grid[SIZE][SIZE], int randPos[2]) {
+void PlacePipe(){
+	if(grid[selectedGrid[0]][selectedGrid[1]] != 0) return; // only place to empty
+
+	if (limitedPipes == 0)
+	{
+		grid[selectedGrid[0]][selectedGrid[1]] = inventory[selectedPipe][0];
+		return;
+	}
+	
+	if (inventory[selectedPipe][1] < 1) return; // no pipes to place
+
+	grid[selectedGrid[0]][selectedGrid[1]] = inventory[selectedPipe][0]; //place
+	inventory[selectedPipe][1]--; //reduce inventory amount
+}
+
+void getRandEmptyPos(int **grid, int randPos[2]) {
 	int randX = rand() % SIZE;
 	int	randY = rand() % SIZE;
 	if (grid[randX][randY] == empty) {
