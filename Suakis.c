@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#include <conio.h> //handle ýnput ýn real týme
+#include <conio.h> //handle input in real time
 
 #define AC_BLACK "\x1b[30m"
 #define AC_RED "\x1b[31m"
@@ -27,7 +27,7 @@ enum BlockTypes
 void draw(int arr[SIZE][SIZE], int inventory[9][2]);
 void handleInput(char input);
 void InitializeGrid(int arr[SIZE][SIZE]);
-void getrandEmptyPos(int grid[SIZE][SIZE], int randPos[2]);
+void getRandEmptyPos(int grid[SIZE][SIZE], int randPos[2]);
 
 
 int selected[2] = { 2, 2 };
@@ -94,7 +94,9 @@ void handleInput(char input) {
 
 void draw(int arr[SIZE][SIZE], int inventory[9][2]) {
 
-	//ýnventory
+	system("cls");
+
+	//ï¿½nventory
 	printf("Inventory: \n");
 	for (int i = 0; i < 9; i++)
 	{
@@ -170,8 +172,6 @@ void draw(int arr[SIZE][SIZE], int inventory[9][2]) {
 	}
 }
 
-
-
 void InitializeGrid(int arr[SIZE][SIZE])
 {
 	for (int i = 0; i < SIZE; i++)
@@ -179,19 +179,20 @@ void InitializeGrid(int arr[SIZE][SIZE])
 			arr[i][j] = 0;
 
 	int randPos[2] = {0,0};
-	getrandEmptyPos(arr, randPos);
+	getRandEmptyPos(arr, randPos);
 
 	arr[randPos[0]][randPos[1]] = source;
 
-	getrandEmptyPos(arr, randPos);
+	getRandEmptyPos(arr, randPos);
 	arr[randPos[0]][randPos[1]] = target;
 	
-	getrandEmptyPos(arr, randPos);
+	getRandEmptyPos(arr, randPos);
 	arr[randPos[0]][randPos[1]] = barrier;
 
 
 }
-void getrandEmptyPos(int grid[SIZE][SIZE], int randPos[2]) {
+
+void getRandEmptyPos(int grid[SIZE][SIZE], int randPos[2]) {
 	int randX = rand() % SIZE;
 	int	randY = rand() % SIZE;
 	if (grid[randX][randY] == empty) {
@@ -199,6 +200,6 @@ void getrandEmptyPos(int grid[SIZE][SIZE], int randPos[2]) {
 		randPos[1] = randY;
 	}
 	else {
-		getrandEmptyPos(grid, randPos);
+		getRandEmptyPos(grid, randPos);
 	}
 }
