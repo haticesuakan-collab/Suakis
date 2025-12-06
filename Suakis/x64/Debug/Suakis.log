@@ -1,1 +1,5 @@
-﻿D:\Visual Studio\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(463,5): error MSB8020: The build tools for v145 (Platform Toolset = 'v145') cannot be found. To build using the v145 build tools, please install v145 build tools.  Alternatively, you may upgrade to the current Visual Studio tools by selecting the Project menu or right-click the solution, and then selecting "Retarget solution".
+﻿  Suakis.c
+C:\DEV\Suakis\Suakis.c(81,8): warning C4244: 'function': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\DEV\Suakis\Suakis.c(283,10): warning C4133: 'initializing': incompatible types - from 'int **' to 'float **'
+C:\DEV\Suakis\Suakis.c(471,1): warning C4715: 'computeFlow': not all control paths return a value
+  Suakis.vcxproj -> C:\DEV\Suakis\x64\Debug\Suakis.exe
